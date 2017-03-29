@@ -7,12 +7,11 @@ import java.io.InputStreamReader;
 import java.util.*;
 class Data_Node
 {
-	int val;
+	int key_val;
 	long count;
 }
 public class Binary_heap {
 	public static void main(String[] args) {
-
 		File file = new File("C:/Users/Ajantha/Desktop/Internship/sample_input_large.txt");
 		FileInputStream fis = null;
 		HashMap<Integer,Long> hash = new HashMap<Integer,Long>();
@@ -40,7 +39,14 @@ public class Binary_heap {
 		catch (IOException e) {
 			e.printStackTrace();
 		} 
+		ArrayList<Data_Node> node_list = new ArrayList<Data_Node>();
 		for(Map.Entry<Integer,Long> entry: hash.entrySet())
-            System.out.println(entry.getKey()+"--->"+entry.getValue());
+		{
+			Data_Node dt_node = new Data_Node();
+			dt_node.key_val = entry.getKey();
+			dt_node.count = entry.getValue();
+			node_list.add(dt_node);
+//			System.out.println(entry.getKey()+"--->"+entry.getValue());
+		}
 	}
 }
