@@ -9,6 +9,8 @@ class Data_Node
 {
 	int key_val=0;
 	long count=0;
+	Data_Node left = null;
+	Data_Node right= null;
 }
 class Heap_Tree
 {
@@ -48,6 +50,7 @@ class Heap_Tree
 	{
 		ArrayList<Data_Node> temp_freq_table = new ArrayList<Data_Node>(freq_table);
 		build_min_heap(temp_freq_table);
+		Data_Node root;
 		while(temp_freq_table.size()>1)
 		{
 			Data_Node data_node1,data_node2,data_node3;
@@ -61,6 +64,10 @@ class Heap_Tree
 			data_node3 = new Data_Node();
 			data_node3.count = data_node1.count + data_node2.count;
 			data_node3.key_val =  0;
+			//Constructing Tree
+			data_node3.left = data_node1;
+			data_node3.right= data_node2;
+			//Tree  Construction Completed
 			temp_freq_table.add(data_node3);
 			int parent = (temp_freq_table.size()/2)-1;
 			int i = temp_freq_table.size()-1;
@@ -71,7 +78,11 @@ class Heap_Tree
 				//Index Vs Size
 				parent = ((i+1)/2)-1;
 			}
+			if(temp_freq_table.size()==1)
+				root = data_node3;
+
 		}
+
 	}
 }
 class four_Way_Heap
@@ -127,6 +138,7 @@ class four_Way_Heap
 	{
 		ArrayList<Data_Node> temp_freq_table = new ArrayList<Data_Node>(freq_table);
 		build_four_Way_heap(temp_freq_table);
+		Data_Node root = new Data_Node();
 		while(temp_freq_table.size()>4)
 		{
 			Data_Node data_node1,data_node2,data_node3;
@@ -140,6 +152,10 @@ class four_Way_Heap
 			data_node3 = new Data_Node();
 			data_node3.count = data_node1.count + data_node2.count;
 			data_node3.key_val =  0;
+			//Constructing Tree
+			data_node3.left = data_node1;
+			data_node3.right= data_node2;
+			//Tree  Construction Completed
 			temp_freq_table.add(data_node3);
 			int parent = ((temp_freq_table.size()-1)/4)+2;
 			int i = temp_freq_table.size()-1;
@@ -150,15 +166,44 @@ class four_Way_Heap
 				//Index Vs Size
 				parent = (i/4)+2;
 			}
+			if(temp_freq_table.size()==4)
+				root = data_node3;
 		}
-	}
 
+		ArrayList<StringBuffer> code_res = new ArrayList<StringBuffer>();
+		StringBuffer path= new StringBuffer("");
+		generate_code_table(root,path,null,code_res);
+	}
+	void generate_code_table(Data_Node root,StringBuffer path,Data_Node parent,ArrayList<StringBuffer> code_res)
+	{
+		StringBuffer left,right;
+		if(root==null)
+			return;
+		if(parent!=null)
+		{
+			if(parent.left==root)
+				path.append(0);
+			else
+				path.append(1);
+		}
+		if(root.left==null && root.right==null)
+		{
+			code_res.add(path);
+			System.out.println(root.key_val+"--->"+path+"--->"+root.count);
+			return ;
+		}
+		generate_code_table(root.left,path,root,code_res);
+		path.deleteCharAt(path.length()-1);
+		generate_code_table(root.right,path,root,code_res);
+		path.deleteCharAt(path.length()-1);
+
+	}
 
 
 }
 public class Binary_heap {
 	public static void main(String[] args) {
-		File file = new File("C:/Users/Ajantha/Desktop/Internship/sample_input_large.txt");
+		File file = new File("C:/Users/Ajantha/Desktop/Internship/myexample.txt");
 		FileInputStream fis = null;
 		HashMap<Integer,Long> hash = new HashMap<Integer,Long>();
 		Heap_Tree heap = new Heap_Tree();
@@ -225,7 +270,7 @@ public class Binary_heap {
 //		four_heap.build_four_Way_heap(fourWay_node_list);
 		System.out.println("Extracting Minimum");
 		long startTime1 = System.currentTimeMillis();
-		for(int i = 0; i < 10; i++){    //run 10 times on given data set
+		for(int i = 0; i < 1; i++){    //run 10 times on given data set
 			four_heap.build_tree_using_fourWay_heap(fourWay_node_list);
 		}
 		long stopTime1 = System.currentTimeMillis();
