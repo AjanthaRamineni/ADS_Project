@@ -1,7 +1,12 @@
 import java.util.*;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
@@ -11,6 +16,11 @@ class Data_Node
 	long count=0;
 	Data_Node left = null;
 	Data_Node right= null;
+}
+class code_Table
+{
+	int key=0;
+	StringBuffer code;
 }
 class Heap_Tree
 {
@@ -93,7 +103,6 @@ class four_Way_Heap
 
 		for(int i=((fourWay_heap_size-1)/4)+2; i>=3; i--){
 			fourWayHeapify(fourWay_node_list, i, fourWay_heap_size);
-
 		}
 //		for(int k=0;k<fourWay_node_list.size();k++)
 //			System.out.print(fourWay_node_list.get(k).count+" ");
@@ -134,7 +143,7 @@ class four_Way_Heap
 		fourWayHeapify(node_list,3,node_list.size());
 		return min_node;
 	}
-	void build_tree_using_fourWay_heap(ArrayList<Data_Node> freq_table)
+	void build_tree_using_fourWay_heap(ArrayList<Data_Node> freq_table) throws IOException
 	{
 		ArrayList<Data_Node> temp_freq_table = new ArrayList<Data_Node>(freq_table);
 		build_four_Way_heap(temp_freq_table);
@@ -170,13 +179,20 @@ class four_Way_Heap
 				root = data_node3;
 		}
 
-		ArrayList<StringBuffer> code_res = new ArrayList<StringBuffer>();
+		ArrayList<code_Table> code_res = new ArrayList<code_Table>();
 		StringBuffer path= new StringBuffer("");
 		generate_code_table(root,path,null,code_res);
+//		for(int j=0;j<code_res.size();j++)
+//		{
+//			System.out.println(code_res.get(j).code.toString()+"--->"+code_res.get(j).key);
+//		}
+		code_Table_Output(code_res);
+		encodeData(code_res);
 	}
-	void generate_code_table(Data_Node root,StringBuffer path,Data_Node parent,ArrayList<StringBuffer> code_res)
+	void generate_code_table(Data_Node root,StringBuffer path,Data_Node parent,ArrayList<code_Table> code_res)
 	{
-		StringBuffer left,right;
+		code_Table code_table = new code_Table();
+//		StringBuffer left,right;
 		if(root==null)
 			return;
 		if(parent!=null)
@@ -188,22 +204,77 @@ class four_Way_Heap
 		}
 		if(root.left==null && root.right==null)
 		{
-			code_res.add(path);
-			System.out.println(root.key_val+"--->"+path+"--->"+root.count);
+			code_table.code = new StringBuffer(path);
+//			System.out.println(code_table.code);
+			code_table.key = root.key_val;
+			code_res.add(code_table);
+//			System.out.println(root.key_val+"--->"+path+"--->"+root.count);
 			return ;
 		}
 		generate_code_table(root.left,path,root,code_res);
 		path.deleteCharAt(path.length()-1);
 		generate_code_table(root.right,path,root,code_res);
 		path.deleteCharAt(path.length()-1);
+	}
+	void code_Table_Output(ArrayList<code_Table>code_res) throws IOException
+	{
+		FileWriter fw = new FileWriter("C:/Users/Ajantha/workspace/ADS_Project/src/code_table.txt");
+		BufferedWriter bw = new BufferedWriter(fw);
+		String content = "";
+		for(int j=0;j<code_res.size();j++)
+		{
+//			System.out.println(code_res.get(j).code.toString());
+			content+=code_res.get(j).key+" ";
+			content+=code_res.get(j).code.toString()+"\n";
+			bw.write(content);
+			content="";
+		}
+		bw.close();
 
 	}
+	void encodeData(ArrayList<code_Table> code_res) throws NumberFormatException, IOException
+	{
+		Map<Integer, StringBuffer> code_hash=new HashMap<Integer, StringBuffer>();
+		for(int i=0;i<code_res.size();i++){
+			code_hash.put(code_res.get(i).key,code_res.get(i).code);
+		}
+		FileOutputStream output=new FileOutputStream("C:/Users/Ajantha/workspace/ADS_Project/src/encoded.bin");
+		FileReader  input;
+
+		try
+		{
+			input= new FileReader("C:/Users/Ajantha/Desktop/Internship/sample_input_large.txt");
+			BufferedReader breader = new BufferedReader(input);
 
 
+
+			String S=new String();
+		//String codeOP=new String();
+			StringBuilder codeOP=new StringBuilder();
+			while((S=breader.readLine())!=null)
+			{
+				int hash_index = Integer.parseInt(S);
+				codeOP.append(code_hash.get(hash_index));
+			}
+
+			for(int i=0;i<codeOP.length();i=i+8){
+				String tempS=codeOP.substring(i, i+8);
+				int tempInt= Integer.parseInt(tempS, 2);
+			//System.out.println(i);
+				output.write(tempInt);
+			}
+			output.close();
+
+		}
+		catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 }
 public class Binary_heap {
-	public static void main(String[] args) {
-		File file = new File("C:/Users/Ajantha/Desktop/Internship/myexample.txt");
+	public static void main(String[] args) throws IOException {
+		File file = new File("C:/Users/Ajantha/Desktop/Internship/sample_input_large.txt");
 		FileInputStream fis = null;
 		HashMap<Integer,Long> hash = new HashMap<Integer,Long>();
 		Heap_Tree heap = new Heap_Tree();
@@ -248,7 +319,7 @@ public class Binary_heap {
 //		heap.build_min_heap(node_list);
 //		System.out.println("Extracting Minimum");
 		long start_Time = System.currentTimeMillis();
-		for(int i=0;i<10;i++)
+		for(int i=0;i<1;i++)
 		{
 			heap.build_tree_using_binary_heap(binary_node_list);
 		}
@@ -268,7 +339,7 @@ public class Binary_heap {
 //			System.out.println(fourWay_node_list.get(j).key_val+"--->"+fourWay_node_list.get(j).count);
 //		System.out.println("After Heapifying");
 //		four_heap.build_four_Way_heap(fourWay_node_list);
-		System.out.println("Extracting Minimum");
+//		System.out.println("Extracting Minimum");
 		long startTime1 = System.currentTimeMillis();
 		for(int i = 0; i < 1; i++){    //run 10 times on given data set
 			four_heap.build_tree_using_fourWay_heap(fourWay_node_list);
