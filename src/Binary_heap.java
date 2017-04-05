@@ -10,18 +10,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
-class Data_Node
-{
-	int key_val=0;
-	long count=0;
-	Data_Node left = null;
-	Data_Node right= null;
-}
-class code_Table
-{
-	int key=0;
-	StringBuffer code;
-}
+
 class Heap_Tree
 {
 	int parent, left, right;
@@ -95,186 +84,105 @@ class Heap_Tree
 
 	}
 }
-class four_Way_Heap
-{
-	void build_four_Way_heap(ArrayList<Data_Node> fourWay_node_list)
-	{
-		int fourWay_heap_size = fourWay_node_list.size();
-
-		for(int i=((fourWay_heap_size-1)/4)+2; i>=3; i--){
-			fourWayHeapify(fourWay_node_list, i, fourWay_heap_size);
-		}
-//		for(int k=0;k<fourWay_node_list.size();k++)
-//			System.out.print(fourWay_node_list.get(k).count+" ");
-//		System.out.println("");
+class pairing_Heap_Node{
+	Data_Node pair_Node;
+	ArrayList<pairing_Heap_Node> pair_children;
+	pairing_Heap_Node(){
+		pair_Node=new Data_Node();
+		pair_children=new ArrayList<pairing_Heap_Node>();
 	}
-	void fourWayHeapify(ArrayList<Data_Node> node,int i,int size)
-	{
-		int child1,child2,child3,child4;
-		child1=4*(i-2);
-		child2=4*(i-2)+1;
-		child3=4*(i-2)+2;
-		child4=4*(i-2)+3;
-		int min=i;
-//		if(i==3) System.out.println(node.get(child1).count+" "+node.get(child2).count
-//				+" "+node.get(child3).count+" "+node.get(child4).count);
-		if(child1< size && node.get(child1).count < node.get(min).count)
-			min = child1;
-		if(child2< size && node.get(child2).count < node.get(min).count)
-			min = child2;
-		if(child3< size && node.get(child3).count < node.get(min).count)
-			min = child3;
-		if(child4< size && node.get(child4).count < node.get(min).count)
-			min = child4;
-//		System.out.println("min="+node.get(min).count+":P");
-		if(min!=i)
-		{
-			Collections.swap(node, i, min);
-			fourWayHeapify(node,min,size);
-		}
-	}
-	Data_Node fourWay_Extract_Min(ArrayList<Data_Node> node_list)
-	{
-		Data_Node min_node = new Data_Node();
-		min_node = node_list.get(3);
-//		System.out.println("min"+min_node.count);
-		node_list.set(3 , node_list.get(node_list.size()-1));
-		node_list.remove(node_list.size()-1);
-		fourWayHeapify(node_list,3,node_list.size());
-		return min_node;
-	}
-	void build_tree_using_fourWay_heap(ArrayList<Data_Node> freq_table) throws IOException
-	{
-		ArrayList<Data_Node> temp_freq_table = new ArrayList<Data_Node>(freq_table);
-		build_four_Way_heap(temp_freq_table);
-		Data_Node root = new Data_Node();
-		while(temp_freq_table.size()>4)
-		{
-			Data_Node data_node1,data_node2,data_node3;
-//			for(int k=0;k<temp_freq_table.size();k++)
-//				System.out.print(temp_freq_table.get(k).count+" ");
-//			System.out.println(" ");
-			data_node1 = new Data_Node();
-			data_node1 = fourWay_Extract_Min(temp_freq_table);
-			data_node2 = new Data_Node();
-			data_node2 = fourWay_Extract_Min(temp_freq_table);
-			data_node3 = new Data_Node();
-			data_node3.count = data_node1.count + data_node2.count;
-			data_node3.key_val =  0;
-			//Constructing Tree
-			data_node3.left = data_node1;
-			data_node3.right= data_node2;
-			//Tree  Construction Completed
-			temp_freq_table.add(data_node3);
-			int parent = ((temp_freq_table.size()-1)/4)+2;
-			int i = temp_freq_table.size()-1;
-			while(i>=4 && temp_freq_table.get(parent).count > temp_freq_table.get(i).count)
-			{
-				Collections.swap(temp_freq_table, i, parent);
-				i = parent;
-				//Index Vs Size
-				parent = (i/4)+2;
-			}
-			if(temp_freq_table.size()==4)
-				root = data_node3;
-		}
 
-		ArrayList<code_Table> code_res = new ArrayList<code_Table>();
-		StringBuffer path= new StringBuffer("");
-		generate_code_table(root,path,null,code_res);
-//		for(int j=0;j<code_res.size();j++)
-//		{
-//			System.out.println(code_res.get(j).code.toString()+"--->"+code_res.get(j).key);
-//		}
-		code_Table_Output(code_res);
-		encodeData(code_res);
-	}
-	void generate_code_table(Data_Node root,StringBuffer path,Data_Node parent,ArrayList<code_Table> code_res)
-	{
-		code_Table code_table = new code_Table();
-//		StringBuffer left,right;
-		if(root==null)
-			return;
-		if(parent!=null)
-		{
-			if(parent.left==root)
-				path.append(0);
-			else
-				path.append(1);
-		}
-		if(root.left==null && root.right==null)
-		{
-			code_table.code = new StringBuffer(path);
-//			System.out.println(code_table.code);
-			code_table.key = root.key_val;
-			code_res.add(code_table);
-//			System.out.println(root.key_val+"--->"+path+"--->"+root.count);
-			return ;
-		}
-		generate_code_table(root.left,path,root,code_res);
-		path.deleteCharAt(path.length()-1);
-		generate_code_table(root.right,path,root,code_res);
-		path.deleteCharAt(path.length()-1);
-	}
-	void code_Table_Output(ArrayList<code_Table>code_res) throws IOException
-	{
-		FileWriter fw = new FileWriter("C:/Users/Ajantha/workspace/ADS_Project/src/code_table.txt");
-		BufferedWriter bw = new BufferedWriter(fw);
-		String content = "";
-		for(int j=0;j<code_res.size();j++)
-		{
-//			System.out.println(code_res.get(j).code.toString());
-			content+=code_res.get(j).key+" ";
-			content+=code_res.get(j).code.toString()+"\n";
-			bw.write(content);
-			content="";
-		}
-		bw.close();
-
-	}
-	void encodeData(ArrayList<code_Table> code_res) throws NumberFormatException, IOException
-	{
-		Map<Integer, StringBuffer> code_hash=new HashMap<Integer, StringBuffer>();
-		for(int i=0;i<code_res.size();i++){
-			code_hash.put(code_res.get(i).key,code_res.get(i).code);
-		}
-		FileOutputStream output=new FileOutputStream("C:/Users/Ajantha/workspace/ADS_Project/src/encoded.bin");
-		FileReader  input;
-
-		try
-		{
-			input= new FileReader("C:/Users/Ajantha/Desktop/Internship/sample_input_large.txt");
-			BufferedReader breader = new BufferedReader(input);
-
-
-
-			String S=new String();
-		//String codeOP=new String();
-			StringBuilder codeOP=new StringBuilder();
-			while((S=breader.readLine())!=null)
-			{
-				int hash_index = Integer.parseInt(S);
-				codeOP.append(code_hash.get(hash_index));
-			}
-
-			for(int i=0;i<codeOP.length();i=i+8){
-				String tempS=codeOP.substring(i, i+8);
-				int tempInt= Integer.parseInt(tempS, 2);
-			//System.out.println(i);
-				output.write(tempInt);
-			}
-			output.close();
-
-		}
-		catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
 }
+class pair_Heap{
+	pairing_Heap_Node pair_root;
+	int pair_size;
+   public pair_Heap() {
+	// TODO- Auto-generated constructor stub
+	   pair_root=null;
+	   pair_size=0;
+   }
+   void insert_Pair_Element(pairing_Heap_Node Addval){
+	   if(pair_root==null) pair_root=Addval;
+	   else if(pair_root.pair_Node.count < Addval.pair_Node.count){
+		   pair_root.pair_children.add(Addval);
+	   }
+	   else{
+		   	Addval.pair_children.add(pair_root);
+		   pair_root = Addval;
+	   }
+	   pair_size++;
+   }
+   Data_Node extract_Min(){
+	   Data_Node minN=pair_root.pair_Node;
+	   ArrayList<pairing_Heap_Node> temp=new ArrayList<pairing_Heap_Node>();
+	   for(int i=pair_root.pair_children.size()-1;i>0;i=i-2){
+		   if(pair_root.pair_children.get(i).pair_Node.count > pair_root.pair_children.get(i-1).pair_Node.count){
+			   temp.add(pair_root.pair_children.get(i-1));
+			   pair_root.pair_children.get(i-1).pair_children.add(pair_root.pair_children.get(i));
+		   }
+		   else{
+			   temp.add(pair_root.pair_children.get(i));
+			   pair_root.pair_children.get(i).pair_children.add(pair_root.pair_children.get(i-1));
+		   }
+		   pair_root.pair_children.remove(pair_root.pair_children.size()-1);
+		   pair_root.pair_children.remove(pair_root.pair_children.size()-1);
+	   }
+	   if(pair_root.pair_children.size()>0){
+		   temp.add(pair_root.pair_children.get(pair_root.pair_children.size()-1));
+		   pair_root.pair_children.remove(pair_root.pair_children.size()-1);
+	   }
+	   pairing_Heap_Node temp_root = null;
+	   if(temp.size() > 0){
+		   temp_root=temp.get(temp.size()-1);
+		   for(int i=temp.size()-2;i>=0;i--){
+			   if(temp.get(i).pair_Node.count > temp_root.pair_Node.count)
+				   temp_root.pair_children.add(temp.get(i));
+			   else{
+				   temp.get(i).pair_children.add(temp_root);
+				   temp_root=temp.get(i);
+			   }
+		   }
+	   }
+	   this.pair_root=temp_root;
+	   pair_size--;
+	   return minN;
+   }
+   void build_tree_using_pairing_heap(ArrayList<Data_Node> pairing_list){
+
+	   Data_Node data1=new Data_Node();
+	   Data_Node data2=new Data_Node();
+
+
+	   for(int i=0;i<pairing_list.size();i++){
+		   Data_Node temp=new Data_Node();
+		   pairing_Heap_Node phNode_Temp=new pairing_Heap_Node();
+		   temp.key_val = pairing_list.get(i).key_val;
+		   temp.count=pairing_list.get(i).count;
+		   phNode_Temp.pair_Node=temp;
+		   insert_Pair_Element(phNode_Temp);
+
+	   }
+	   while(pair_size>1){
+		   pairing_Heap_Node pheap=new pairing_Heap_Node();
+		   Data_Node data3=new Data_Node();
+		   data1 = extract_Min();
+		   data2 = extract_Min();
+		   long count=data1.count+data2.count;
+		   data3.count=count;
+		   data3.key_val=-1;
+		   pheap.pair_Node=data3;
+		   insert_Pair_Element(pheap);
+	   }
+
+
+   }
+
+}
+
+//Calculating Time
 public class Binary_heap {
 	public static void main(String[] args) throws IOException {
-		File file = new File("C:/Users/Ajantha/Desktop/Internship/sample_input_large.txt");
+		File file = new File(args[0]);
 		FileInputStream fis = null;
 		HashMap<Integer,Long> hash = new HashMap<Integer,Long>();
 		Heap_Tree heap = new Heap_Tree();
@@ -319,7 +227,7 @@ public class Binary_heap {
 //		heap.build_min_heap(node_list);
 //		System.out.println("Extracting Minimum");
 		long start_Time = System.currentTimeMillis();
-		for(int i=0;i<1;i++)
+		for(int i=0;i<10;i++)
 		{
 			heap.build_tree_using_binary_heap(binary_node_list);
 		}
@@ -334,19 +242,21 @@ public class Binary_heap {
 			fourWay_node_list.add(0,temp);
 
 		four_Way_Heap four_heap = new four_Way_Heap();
-//		System.out.println("Before Heapifying ");
-//		for(int j=0;j<fourWay_node_list.size();j++)
-//			System.out.println(fourWay_node_list.get(j).key_val+"--->"+fourWay_node_list.get(j).count);
-//		System.out.println("After Heapifying");
-//		four_heap.build_four_Way_heap(fourWay_node_list);
-//		System.out.println("Extracting Minimum");
 		long startTime1 = System.currentTimeMillis();
-		for(int i = 0; i < 1; i++){    //run 10 times on given data set
+		for(int i = 0; i < 10; i++){    //run 10 times on given data set
 			four_heap.build_tree_using_fourWay_heap(fourWay_node_list);
 		}
 		long stopTime1 = System.currentTimeMillis();
 		System.out.println(stopTime1-startTime1+" MilliSec");
 
+		ArrayList<Data_Node> pair_node_list = new ArrayList<Data_Node>(binary_node_list);
+		pair_Heap pair_heap = new pair_Heap();
+		long startTime2 = System.currentTimeMillis();
+		for(int i = 0; i < 10; i++){    //run 10 times on given data set
+			pair_heap.build_tree_using_pairing_heap(pair_node_list);
+		}
+		long stopTime2 = System.currentTimeMillis();
+		System.out.println(stopTime2-startTime2+" MilliSec");
 
 	}
 }
