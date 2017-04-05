@@ -202,7 +202,7 @@ public class encoder {
 		String file_name = args[0];
 		FileInputStream fis = null;
 		HashMap<Integer,Long> hash = new HashMap<Integer,Long>();
-		Heap_Tree heap = new Heap_Tree();
+//		Heap_Tree heap = new Heap_Tree();
 		try
 		{
 			fis = new FileInputStream(file);
